@@ -47,26 +47,26 @@ class TicTacToe:
         x_wins = 0
         o_wins = 0
         if self.board[int_x][0] == self.board[int_x][1] == self.board[int_x][2] == "X":
-            x_wins += 1
+            x_wins = True
         if self.board[int_x][0] == self.board[int_x][1] == self.board[int_x][2] == "O":
-            o_wins += 1
+            o_wins = True
         if self.board[0][int_y] == self.board[1][int_y] == self.board[2][int_y] == "X":
-            x_wins += 1
+            x_wins = True
         if self.board[0][int_y] == self.board[1][int_y] == self.board[2][int_y] == "O":
-            o_wins += 1
+            o_wins = True
         if self.board[0][0] == self.board[1][1] == self.board[2][2] == "X":
-            x_wins += 1
+            x_wins = True
         if self.board[0][2] == self.board[1][1] == self.board[2][0] == "X":
-            x_wins += 1
+            x_wins = True
         if self.board[0][0] == self.board[1][1] == self.board[2][2] == "O":
-            o_wins += 1
+            o_wins = True
         if self.board[0][2] == self.board[1][1] == self.board[2][0] == "O":
-            o_wins += 1
+            o_wins = True
         if self.check_moves == 9:
             return "Draw"
-        if x_wins == 1:
+        if x_wins:
             return "X wins"
-        if o_wins == 1:
+        if o_wins:
             return "O wins"
         return False
 
