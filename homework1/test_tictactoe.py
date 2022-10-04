@@ -28,9 +28,11 @@ class TestTictactoe(unittest.TestCase):
         game.x_coord = "2"
         game.y_coord = "2"
         self.assertTrue(game.validate_input())
+        
         game.x_coord = "2"
         game.y_coord = "2"
-        self.assertTrue(game.validate_input())
+        game.fill_process()
+        self.assertFalse(game.validate_input())
 
     def test_check_winner(self):
         "these tests check if someone already wins or not"

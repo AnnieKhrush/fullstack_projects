@@ -40,6 +40,13 @@ class TicTacToe:
             return False
         return True
 
+    def fill_process(self):
+        "this function determines who will make a move"
+        if self.check_moves % 2 == 1:
+            self.board[int(self.x_coord) - 1][int(self.y_coord) - 1] = "X"
+        else:
+            self.board[int(self.x_coord) - 1][int(self.y_coord) - 1] = "O"
+
     def check_winner(self):
         "this function checks if someone already wins or not"
         int_x = int(self.x_coord) - 1
@@ -62,20 +69,13 @@ class TicTacToe:
             o_wins = True
         if self.board[0][2] == self.board[1][1] == self.board[2][0] == "O":
             o_wins = True
-        if self.check_moves == 9:
-            return "Draw"
         if x_wins:
             return "X wins"
         if o_wins:
             return "O wins"
+        if self.check_moves == 9:
+            return "Draw"
         return False
-
-    def fill_process(self):
-        "this function determines who will make a move"
-        if self.check_moves % 2 == 1:
-            self.board[int(self.x_coord) - 1][int(self.y_coord) - 1] = "X"
-        else:
-            self.board[int(self.x_coord) - 1][int(self.y_coord) - 1] = "O"
 
     def game_process(self):
         "this function show the process of the game"
