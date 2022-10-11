@@ -26,14 +26,14 @@ def chat_title(request, pk):
         ]
         return JsonResponse({'Name of a chat': chats[pk - 1]['chat_title']})
     else:
-        return HttpResponse(status = 405)
+        return HttpResponse(status=405)
 
 @csrf_exempt
 def create_chat(request):
     if request.method == 'POST':
         new_chat = [
-            {'chat_id': request.POST, 'chat_title': request.POST}
+            {'chat': request.POST}
         ]
         return JsonResponse({'New chat': new_chat})
     else:
-        return HttpResponse(status = 405)
+        return HttpResponse(status=405)
