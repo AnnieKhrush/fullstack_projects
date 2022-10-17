@@ -1,6 +1,6 @@
 from django.urls import path
-from start_page.views import page
+from users.views import page
 
-urlpatterns = [ 
+urlpatterns = [
     path('', page, name='page'),
 ]
