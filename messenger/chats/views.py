@@ -37,6 +37,7 @@ def create_chat(request):
         return JsonResponse(new_chat)
     else:
         return HttpResponse(status=405)
+        
 
 def page(request):
     if request.method == 'GET':
