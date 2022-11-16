@@ -5,7 +5,7 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-    username = models.CharField(unique=True, max_length=32, verbose_name='Иья пользователя (username)')
+    username = models.CharField(unique=True, max_length=32, verbose_name='Имя пользователя (username)')
     first_name = models.CharField(max_length=32, verbose_name='Имя')
     last_name = models.CharField(max_length=32, verbose_name='Фамилия')
     date_of_birth = models.DateField(null=True, default=date.fromisoformat('2000-03-03'), blank=True, verbose_name='Дата рождения')
