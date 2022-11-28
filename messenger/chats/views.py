@@ -1,65 +1,134 @@
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse, HttpResponse, Http404
 from django.views.decorators.http import require_http_methods
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, get_list_or_404
+from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, UpdateAPIView
+from rest_framework import viewsets
+#from rest_framework.filters import BaseFilterBackend
 import json
 from chats.models import Chat, Message
 from users.models import User
+from chats.serializers import ChatCreateSerializer, ChatSerializer, MessageSerializer, MessageCheckedSerializer, MessageCreateSerializer
 
 # Create your views here.
+'''
 @require_http_methods(['POST'])
 def create_chat(request):
-    new_chat = Chat.objects.create(chat_title=request.POST.get('chat_title'), chat_description=request.POST.get('chat_description'))
-    new_chat.save()
-    users = request.POST.getlist('users')
-    for user_id in users:
-        user = get_object_or_404(User, id=int(user_id))
-        user.save()
-        user.user_chats.add(new_chat)
-        user.save()
-    response = {
-        'Заголовок нового чата': new_chat.chat_title,
-        'Описание нового чата': new_chat.chat_description
-    }
-    return JsonResponse(response)
+        chat_title=request.POST.get('chat_title')
+        chat_description=request.POST.get('chat_description')
+        
+        users_id = request.POST.getlist('users')
+        if chat_title == '' or chat_description == '':
+            return JsonResponse({'Ошибка:': 'Название чата или его описание не могут быть пустыми'}, status=400)
+        else:
+            new_chat = Chat.objects.create(chat_title=chat_title, chat_description=chat_description)
+            users = get_list_or_404(User, id__in=users_id)
+            if len(users) != len(users_id):
+                raise Http404
+            for user in users:
+                user.user_chats.add(new_chat)
+            response = {
+                'title_of_new_chat': new_chat.chat_title,
+                'description_of_new_chat': new_chat.chat_description
+            }
+            return JsonResponse(response)
+'''
 
 
+class ChatCreate(CreateAPIView):
+    serializer_class = ChatCreateSerializer
+    queryset = Chat.objects.all()
+    lookup_field = 'id'
+
+class ChatChange(RetrieveUpdateDestroyAPIView):
+    serializer_class = ChatSerializer
+    queryset = Chat.objects.all()
+    lookup_field = 'id'
+
+    def get_object(self):
+        chat_id = self.kwargs['chat_id']
+        return get_object_or_404(Chat, id=chat_id)
+
+
+class ChatList(ListAPIView):
+    serializer_class = ChatSerializer
+    queryset = Chat.objects.all()
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(User, id=user_id)
+        return user.user_chats
+
+
+class MessageCreate(CreateAPIView):
+    serializer_class = MessageCreateSerializer
+    queryset = Message.objects.all()
+    lookup_field = 'id'
+
+
+class MessageChange(RetrieveUpdateDestroyAPIView):
+    serializer_class = MessageSerializer
+    lookup_field = 'id'
+    
+    def get_object(self):
+        message_id = self.kwargs['message_id']
+        return get_object_or_404(Message, id=message_id)
+
+class MessageList(ListAPIView):
+    serializer_class = MessageSerializer
+    queryset = Message.objects.all()
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        chat_id = self.kwargs['chat_id']
+        chat = get_object_or_404(Chat, id=chat_id)
+        messages = Message.objects.filter(message_in_chat=chat)
+        return messages
+
+class MessageChecked(UpdateAPIView):
+    serializer_class = MessageCheckedSerializer
+    lookup_field = 'id'
+    
+    def get_object(self):
+        message_id = self.kwargs['message_id']
+        return get_object_or_404(Message, id=message_id)
+
+'''
 @require_http_methods(['POST'])
 def create_message(request):
     chat_id = request.POST.get('chat_id')
     chat = get_object_or_404(Chat, id=chat_id)
     text = request.POST.get('new_message')
     new_message = Message.objects.create(message=text, message_in_chat=chat)
-    new_message.save()
     response = {
-        'Текст нового сообщения': new_message.message,
-        'Новое сообщение находится в чате': new_message.message_in_chat.chat_title
+        'new_message_text': new_message.message,
+        'in_chat': new_message.message_in_chat.chat_title
     }
     return JsonResponse(response)
-
-
-
+'''
+'''
 @require_http_methods(['GET'])
 def chat_info(request, chat_id):
     chat = get_object_or_404(Chat, id=chat_id)
     chat = {
-        'Заголовок': chat.chat_title,
-        'Описание чата': chat.chat_description,
-        'Дата создания чата': chat.chat_created_at
+        'title': chat.chat_title,
+        'chat_description': chat.chat_description,
+        'created_at': chat.chat_created_at
     }
     return JsonResponse(chat)
+'''
 
-
+'''
 @require_http_methods(['GET'])
 def message_info(request, message_id):
     message = get_object_or_404(Message, id=message_id)
     message = {
-        'Чат, к которому относится сообщение': message.message_in_chat.chat_title,
-        'Текст сообщения': message.message,
-        'Время создания сообщения': message.message_created_at
+        'in_chat': message.message_in_chat.chat_title,
+        'message_text': message.message
     }
     return JsonResponse(message)
-
-
+'''
+'''
 @require_http_methods(['GET'])
 def chat_list(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -67,26 +136,22 @@ def chat_list(request, user_id):
     chat_list = []
     for chat in chats:
         chat_list.append({
-            'Заголовок': chat.chat_title,
-            'Описание чата': chat.chat_description,
-            'Дата создания чата': chat.chat_created_at
+            'title': chat.chat_title,
+            'chat_description': chat.chat_description
         })
     return JsonResponse({'Список чатов': chat_list})
 
 
 @require_http_methods(['GET'])
-def message_list(request, user_id):
-    user = get_object_or_404(User, id=user_id)
-    chats = user.user_chats.all()
+def message_list(request, chat_id):
+    chat = get_object_or_404(Chat, id=chat_id)
+    messages = Message.objects.filter(message_in_chat=chat)
     messages_list = []
-    for chat in chats:
-        messages = Message.objects.filter(message_in_chat=chat)
-        for message in messages:
-            messages_list.append({
-                'Чат, к которому относится сообщение': message.message_in_chat.chat_title,
-                'Текст сообщения': message.message,
-                'Время создания сообщения': message.message_created_at
-            })
+    for message in messages:
+        messages_list.append({
+            'in_chat': message.message_in_chat.chat_title,
+            'message_text': message.message
+        })
     return JsonResponse({'Список сообщений': messages_list})
 
 
@@ -98,9 +163,8 @@ def chat_edit(request, chat_id):
     chat.chat_description = new_data.get('chat_description')
     chat.save()
     response = {
-        'Заголовок измененного чата': chat.chat_title,
-        'Описание измененного чата': chat.chat_description,
-        'Дата создания чата': chat.chat_created_at
+        'title_of_modified_chat': chat.chat_title,
+        'description_of_modified_chat': chat.chat_description
     }
     return JsonResponse(response)
 
@@ -111,9 +175,8 @@ def message_edit(request, message_id):
     message.message = json.loads(request.body).get('message')
     message.save()
     response = {
-        'Чат, к которому относится изменённое сообщение': message.message_in_chat.chat_title,
-        'Текст изменённого сообщения': message.message,
-        'Время создания сообщения': message.message_created_at
+        'in_chat': message.message_in_chat.chat_title,
+        'text_of_modified_chat': message.message
     }
     return JsonResponse(response)
 
@@ -123,7 +186,7 @@ def chat_delete(request, chat_id):
     chat = get_object_or_404(Chat, id=chat_id)
     title = chat.chat_title
     chat.delete()
-    return JsonResponse({'Удалённый чат': title})
+    return JsonResponse({'title_of_deleted_chat': title})
 
 
 @require_http_methods(['DELETE'])
@@ -133,8 +196,8 @@ def message_delete(request, message_id):
     chat = message.message_in_chat.chat_title
     message.delete()
     response = {
-        'Удалённое сообщение': text,
-        'Сообщение принадлежало чату': chat
+        'deleted_message': text,
+        'from_chat': chat
     }
     return JsonResponse(response)
 
@@ -145,11 +208,12 @@ def message_check(request, message_id):
     message.checked = True
     message.save()
     response = {
-        'Данное сообщение прочитано': message.message
+        'message_text': message.message,
+        'checked': message.checked
     }
     return JsonResponse(response)
 
-
+'''
 def page(request):
     if request.method == 'GET':
         return render(request, 'start_page_chats.html')

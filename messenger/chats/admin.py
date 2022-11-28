@@ -4,7 +4,7 @@ from django.contrib import admin
 from chats.models import Chat, Message
 
 class ChatAdmin(admin.ModelAdmin):
-    list_display = ('chat_title', 'chat_description')
+    list_display = ('chat_title', 'chat_description',)
     search_fields = ('chat_title',)
 
 class MessageAdmin(admin.ModelAdmin):
