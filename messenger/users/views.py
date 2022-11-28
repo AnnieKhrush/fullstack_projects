@@ -2,14 +2,26 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from users.models import User
-from chats.models import Chat
-from rest_framework.generics import RetrieveAPIView, RetrieveUpdateAPIView
-from users.serializers import UserSerializer, UserAddDeleteSerializer
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView
+from users.serializers import UserInfoSerializer, UserAddSerializer, UserDeleteSerializer
 
 # Create your views here.
 class UserInfo(RetrieveAPIView):
-    serializer_class = UserSerializer
+
+    serializer_class = UserInfoSerializer
     queryset = User.objects.all()
+    lookup_field = 'id'
+
+
+    def get_object(self):
+        user_id = self.kwargs['user_id']
+        return get_object_or_404(User, id=user_id)
+
+
+class UserAdd(UpdateAPIView):
+
+    serializer_class = UserAddSerializer
+    queryset = User.objects.filter()
     lookup_field = 'id'
 
     def get_object(self):
@@ -17,20 +29,17 @@ class UserInfo(RetrieveAPIView):
         return get_object_or_404(User, id=user_id)
 
 
-class UserAddDelete(RetrieveUpdateAPIView):
-    serializer_class = UserAddDeleteSerializer
-    queryset = User.objects.all()
+class UserDelete(UpdateAPIView):
+
+    serializer_class = UserDeleteSerializer
+    queryset = User.objects.filter()
+    lookup_field = 'id'
 
     def get_object(self):
         user_id = self.kwargs['user_id']
-        chat_id = self.kwargs['chat_id']
-        user = get_object_or_404(User, id=user_id)
-        chat = get_object_or_404(Chat, id=chat_id)
-        try:
-            users_chat = User.objects.get(id=user_id, user_chats=chat)
-        except User.DoesNotExist:
-            user.user_chats.add(chat)
-        return 0
+        return get_object_or_404(User, id=user_id)
+
+
 '''
 @require_http_methods(['GET'])
 def user_info(request, user_id):
@@ -44,7 +53,7 @@ def user_info(request, user_id):
         'additional_info': user.user_info,
     }
     return JsonResponse(user)
-'''
+
 
 @require_http_methods(['PUT'])
 def user_add_to_chat(request, user_id, chat_id):
@@ -90,3 +99,4 @@ def delete_from_chat(request, user_id, chat_id):
 @require_http_methods(['GET'])
 def page(request):
     return render(request, 'start_page_users.html')
+'''

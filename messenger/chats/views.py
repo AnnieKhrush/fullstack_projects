@@ -7,9 +7,78 @@ from rest_framework import viewsets
 import json
 from chats.models import Chat, Message
 from users.models import User
-from chats.serializers import ChatCreateSerializer, ChatSerializer, MessageSerializer, MessageCheckedSerializer, MessageCreateSerializer
+from chats.serializers import ChatCreateSerializer, ChatChangeSerializer, ChatListSerializer, MessageChangeSerializer, MessageCheckedSerializer, MessageCreateSerializer, MessageListSerializer
 
 # Create your views here.
+class ChatCreate(CreateAPIView):
+
+    serializer_class = ChatCreateSerializer
+    queryset = Chat.objects.all()
+    lookup_field = 'id'
+
+class ChatChange(RetrieveUpdateDestroyAPIView):
+
+    serializer_class = ChatChangeSerializer
+    queryset = Chat.objects.all()
+    lookup_field = 'id'
+
+    def get_object(self):
+        chat_id = self.kwargs['chat_id']
+        return get_object_or_404(Chat, id=chat_id)
+
+
+class ChatList(ListAPIView):
+
+    serializer_class = ChatListSerializer
+    queryset = Chat.objects.all()
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = get_object_or_404(User, id=user_id)
+        return user.user_chats
+
+
+class MessageCreate(CreateAPIView):
+
+    serializer_class = MessageCreateSerializer
+    queryset = Message.objects.all()
+    lookup_field = 'id'
+
+
+class MessageChange(RetrieveUpdateDestroyAPIView):
+
+    serializer_class = MessageChangeSerializer
+    lookup_field = 'id'
+    
+    def get_object(self):
+        message_id = self.kwargs['message_id']
+        return get_object_or_404(Message, id=message_id)
+
+
+class MessageChecked(UpdateAPIView):
+
+    serializer_class = MessageCheckedSerializer
+    lookup_field = 'id'
+    
+    def get_object(self):
+        message_id = self.kwargs['message_id']
+        return get_object_or_404(Message, id=message_id)
+
+
+class MessageList(ListAPIView):
+
+    serializer_class = MessageListSerializer
+    queryset = Message.objects.all()
+    lookup_field = 'id'
+
+    def get_queryset(self):
+        chat_id = self.kwargs['chat_id']
+        chat = get_object_or_404(Chat, id=chat_id)
+        messages = Message.objects.filter(message_in_chat=chat)
+        return messages
+
+
 '''
 @require_http_methods(['POST'])
 def create_chat(request):
@@ -31,69 +100,8 @@ def create_chat(request):
                 'description_of_new_chat': new_chat.chat_description
             }
             return JsonResponse(response)
-'''
 
 
-class ChatCreate(CreateAPIView):
-    serializer_class = ChatCreateSerializer
-    queryset = Chat.objects.all()
-    lookup_field = 'id'
-
-class ChatChange(RetrieveUpdateDestroyAPIView):
-    serializer_class = ChatSerializer
-    queryset = Chat.objects.all()
-    lookup_field = 'id'
-
-    def get_object(self):
-        chat_id = self.kwargs['chat_id']
-        return get_object_or_404(Chat, id=chat_id)
-
-
-class ChatList(ListAPIView):
-    serializer_class = ChatSerializer
-    queryset = Chat.objects.all()
-    lookup_field = 'id'
-
-    def get_queryset(self):
-        user_id = self.kwargs['user_id']
-        user = get_object_or_404(User, id=user_id)
-        return user.user_chats
-
-
-class MessageCreate(CreateAPIView):
-    serializer_class = MessageCreateSerializer
-    queryset = Message.objects.all()
-    lookup_field = 'id'
-
-
-class MessageChange(RetrieveUpdateDestroyAPIView):
-    serializer_class = MessageSerializer
-    lookup_field = 'id'
-    
-    def get_object(self):
-        message_id = self.kwargs['message_id']
-        return get_object_or_404(Message, id=message_id)
-
-class MessageList(ListAPIView):
-    serializer_class = MessageSerializer
-    queryset = Message.objects.all()
-    lookup_field = 'id'
-
-    def get_queryset(self):
-        chat_id = self.kwargs['chat_id']
-        chat = get_object_or_404(Chat, id=chat_id)
-        messages = Message.objects.filter(message_in_chat=chat)
-        return messages
-
-class MessageChecked(UpdateAPIView):
-    serializer_class = MessageCheckedSerializer
-    lookup_field = 'id'
-    
-    def get_object(self):
-        message_id = self.kwargs['message_id']
-        return get_object_or_404(Message, id=message_id)
-
-'''
 @require_http_methods(['POST'])
 def create_message(request):
     chat_id = request.POST.get('chat_id')
@@ -105,8 +113,8 @@ def create_message(request):
         'in_chat': new_message.message_in_chat.chat_title
     }
     return JsonResponse(response)
-'''
-'''
+
+
 @require_http_methods(['GET'])
 def chat_info(request, chat_id):
     chat = get_object_or_404(Chat, id=chat_id)
@@ -116,9 +124,8 @@ def chat_info(request, chat_id):
         'created_at': chat.chat_created_at
     }
     return JsonResponse(chat)
-'''
 
-'''
+
 @require_http_methods(['GET'])
 def message_info(request, message_id):
     message = get_object_or_404(Message, id=message_id)
@@ -127,8 +134,8 @@ def message_info(request, message_id):
         'message_text': message.message
     }
     return JsonResponse(message)
-'''
-'''
+
+
 @require_http_methods(['GET'])
 def chat_list(request, user_id):
     user = get_object_or_404(User, id=user_id)
@@ -213,9 +220,11 @@ def message_check(request, message_id):
     }
     return JsonResponse(response)
 
-'''
+
 def page(request):
     if request.method == 'GET':
         return render(request, 'start_page_chats.html')
     else:
         return HttpResponse(status=405)
+
+'''

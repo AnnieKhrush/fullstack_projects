@@ -2,51 +2,83 @@ from rest_framework import serializers
 from chats.models import Chat, Message
 from users.models import User
 
-class ChatSerializer(serializers.ModelSerializer):
+class ChatCreateSerializer(serializers.ModelSerializer):
+
+    chat_users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
+
+
+    class Meta:
+        model = Chat
+        fields = ('chat_title', 'chat_description', 'chat_users')
+
+
+    def validate_data(self, data):
+        if data['chat_title'] == '' or data['chat_description'] == '':
+            raise serializers.ValidationError('Поле "название чата" или поле "описание чата" не должны быть пустыми!')
+        return data
+    
+
+    def create(self, validated_data):
+        chat_users = validated_data.pop('chat_users')
+        instance = Chat.objects.create(**validated_data)
+        instance.chat_users.add(*chat_users)
+        return instance
+
+
+class ChatChangeSerializer(serializers.ModelSerializer):
+
+    chat_users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
+
+
+    class Meta:
+        model = Chat
+        fields = ('chat_title', 'chat_description', 'chat_users')
+
+
+    def validate(self, data):
+        if data['chat_title'] == '' or data['chat_description'] == '':
+            raise serializers.ValidationError('Поле "название чата" или поле "описание чата" не должны быть пустыми!')
+        return data
+
+
+class ChatListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Chat
         fields = ('chat_title', 'chat_description')
 
 
-class ChatCreateSerializer(serializers.ModelSerializer):
-
-    users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
-
-    class Meta:
-        model = Chat
-        fields = ('chat_title', 'chat_description', 'users')
-    
-    def create(self, validated_data):
-        users = validated_data.pop('users')
-        instance = Chat.objects.create(**validated_data)
-        instance.chat_users.add(users)
-        return instance
-
-
 class MessageCreateSerializer(serializers.ModelSerializer):
 
-    chat_id = serializers.PrimaryKeyRelatedField(queryset=Chat.objects.all())
+    message_in_chat = serializers.PrimaryKeyRelatedField(queryset=Chat.objects.all())
 
-    class Meta:
-        model = Message
-        fields = ('message', 'chat_id')
-    
-    def create(self, validated_data):
-        chat_id = validated_data.pop('chat_id')
-        instance = Message.objects.create(**validated_data)
-        instance.message_in_chat.add(chat_id)
-        return instance
-
-
-class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
         fields = ('message', 'message_in_chat')
+    
+
+    def create(self, validated_data):
+        instance = Message.objects.create(**validated_data)
+        return instance
+
+
+class MessageChangeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ('message',)
+
 
 class MessageCheckedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
         fields = ('checked',)
+
+    
+class MessageListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ('message', 'message_created_at', 'checked')

@@ -3,7 +3,7 @@ from django.utils import timezone
 
 # Create your models here.
 class Chat(models.Model):
-    chat_title = models.CharField(max_length=32, null=True, verbose_name='Название чата')
+    chat_title = models.CharField(max_length=32, null=True, verbose_name='Название чата', blank=True)
     chat_description = models.TextField(null=True, verbose_name='Описание чата', blank=True)
     chat_created_at = models.DateTimeField(null=True, default=timezone.now, verbose_name='Дата создания чата')
 
