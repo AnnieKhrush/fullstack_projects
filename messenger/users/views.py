@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from users.models import User
-from rest_framework.generics import RetrieveAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import RetrieveAPIView, UpdateAPIView
 from users.serializers import UserInfoSerializer, UserAddSerializer, UserDeleteSerializer
 
 # Create your views here.
@@ -13,20 +13,17 @@ class UserInfo(RetrieveAPIView):
     lookup_field = 'id'
 
 
-    def get_object(self):
-        user_id = self.kwargs['user_id']
-        return get_object_or_404(User, id=user_id)
-
 
 class UserAdd(UpdateAPIView):
 
     serializer_class = UserAddSerializer
     queryset = User.objects.filter()
     lookup_field = 'id'
+    
 
-    def get_object(self):
-        user_id = self.kwargs['user_id']
-        return get_object_or_404(User, id=user_id)
+    def perform_update(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
 
 class UserDelete(UpdateAPIView):
@@ -35,9 +32,10 @@ class UserDelete(UpdateAPIView):
     queryset = User.objects.filter()
     lookup_field = 'id'
 
-    def get_object(self):
-        user_id = self.kwargs['user_id']
-        return get_object_or_404(User, id=user_id)
+    
+    def perform_update(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
 
 '''

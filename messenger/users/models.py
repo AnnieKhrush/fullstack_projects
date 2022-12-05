@@ -9,6 +9,7 @@ class User(AbstractUser):
     place_of_living = models.CharField(null=True, max_length=32, blank=True, verbose_name='Город')
     user_info = models.TextField(null=True, blank=True, verbose_name='Дополнительная информация')
     user_chats = models.ManyToManyField(Chat, related_name='chat_users', blank=True, verbose_name='Чаты пользователя')
+    chats_admin = models.ManyToManyField(Chat, related_name='admins', null=True, blank=True, verbose_name='Админ в чатах')
 
     def __str__(self):
         return self.username

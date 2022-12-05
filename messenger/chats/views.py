@@ -1,20 +1,37 @@
 from django.http import JsonResponse, HttpResponse, Http404
 from django.views.decorators.http import require_http_methods
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, UpdateAPIView
-from rest_framework import viewsets
-#from rest_framework.filters import BaseFilterBackend
-import json
+# from rest_framework import viewsets
+# from rest_framework.filters import BaseFilterBackend
+# import json
 from chats.models import Chat, Message
 from users.models import User
-from chats.serializers import ChatCreateSerializer, ChatChangeSerializer, ChatListSerializer, MessageChangeSerializer, MessageCheckedSerializer, MessageCreateSerializer, MessageListSerializer
+from chats.serializers import ChatCreateSerializer, ChatChangeSerializer, ChatListSerializer, MessageChangeSerializer, MessageCreateSerializer, MessageListSerializer
+from application.decorator import login_needed
 
 # Create your views here.
+@login_needed
+def home_page(request):
+    return render(request, 'home_page.html')
+    
+
+def login(request):
+    return render(request, 'login.html')
+
+
 class ChatCreate(CreateAPIView):
 
     serializer_class = ChatCreateSerializer
     queryset = Chat.objects.all()
     lookup_field = 'id'
+
+
+    def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
 
 class ChatChange(RetrieveUpdateDestroyAPIView):
 
@@ -22,9 +39,10 @@ class ChatChange(RetrieveUpdateDestroyAPIView):
     queryset = Chat.objects.all()
     lookup_field = 'id'
 
-    def get_object(self):
-        chat_id = self.kwargs['chat_id']
-        return get_object_or_404(Chat, id=chat_id)
+
+    def perform_update(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
 
 class ChatList(ListAPIView):
@@ -45,25 +63,21 @@ class MessageCreate(CreateAPIView):
     queryset = Message.objects.all()
     lookup_field = 'id'
 
+    def perform_create(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
 
 class MessageChange(RetrieveUpdateDestroyAPIView):
 
     serializer_class = MessageChangeSerializer
+    queryset = Message.objects.all()
     lookup_field = 'id'
-    
-    def get_object(self):
-        message_id = self.kwargs['message_id']
-        return get_object_or_404(Message, id=message_id)
 
 
-class MessageChecked(UpdateAPIView):
-
-    serializer_class = MessageCheckedSerializer
-    lookup_field = 'id'
-    
-    def get_object(self):
-        message_id = self.kwargs['message_id']
-        return get_object_or_404(Message, id=message_id)
+    def perform_update(self, serializer):
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
 
 
 class MessageList(ListAPIView):
@@ -221,10 +235,6 @@ def message_check(request, message_id):
     return JsonResponse(response)
 
 
-def page(request):
-    if request.method == 'GET':
-        return render(request, 'start_page_chats.html')
-    else:
-        return HttpResponse(status=405)
+
 
 '''

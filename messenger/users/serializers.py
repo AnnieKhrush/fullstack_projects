@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from users.models import User
 from chats.models import Chat
+from users.tasks import send_admin_email
 
 
 class UserInfoSerializer(serializers.ModelSerializer):
@@ -21,12 +22,24 @@ class UserAddSerializer(serializers.ModelSerializer):
 
 
     def update(self, instance, validated_data):
-        user_chats = validated_data.pop('user_chats')
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        user_chats = validated_data['user_chats']
+        chats_id = []
         for chat in user_chats:
-            if chat.chat_users.filter(id=instance.id).exists():
-                raise serializers.ValidationError('Пользователь уже в этом чате!')
+            if chat.admins.filter(id=user.id).exists():
+                if chat.chat_users.filter(id=instance.id).exists():
+                    raise serializers.ValidationError('Пользователь уже в этом чате!')
+                else:
+                    instance.user_chats.add(chat)
+                    instance.save()
+                    chats_id.append(chat.id)
+                    
             else:
-                instance.user_chats.add(chat)
+                raise serializers.ValidationError('Пользователь не является админом чата, поэтому не может добавлять других пользователей в этот чат!')
+        
+        send_admin_email(instance.id, chats_id)
         return instance
 
 
@@ -40,11 +53,21 @@ class UserDeleteSerializer(serializers.ModelSerializer):
         fields = ('user_chats',)
 
 
+
     def update(self, instance, validated_data):
-        user_chats = validated_data.pop('user_chats')
+        request = self.context.get("request")
+        if request and hasattr(request, "user"):
+            user = request.user
+        user_chats = validated_data['user_chats']
         for chat in user_chats:
-            if chat.chat_users.filter(id=instance.id).exists():
-                instance.user_chats.remove(chat)
+            if chat.admins.filter(id=user.id).exists():
+                if chat.chat_users.filter(id=user.id).exists():
+                    instance.user_chats.remove(chat)
+                    instance.save()
+                else:
+                    raise serializers.ValidationError('Пользователя нет в этом чате!')
             else:
-                raise serializers.ValidationError('Пользователя нет в этом чате!')
+                raise serializers.ValidationError('Пользователь не является админом чата, поэтому не может удалять других пользователей из этого чата!')
+
+        instance.save()
         return instance
