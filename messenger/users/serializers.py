@@ -39,7 +39,7 @@ class UserAddSerializer(serializers.ModelSerializer):
             else:
                 raise serializers.ValidationError('Пользователь не является админом чата, поэтому не может добавлять других пользователей в этот чат!')
         
-        send_admin_email(instance.id, chats_id)
+        send_admin_email.delay(instance.id, chats_id)
         return instance
 
 

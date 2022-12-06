@@ -1,12 +1,17 @@
 from users.models import User
+import datetime
+from django.utils import timezone
 
-def return_chat_admins(chats_id):
 
-    admins = User.objects.filter(chats_admin__id__in=chats_id)
-    emails = []
-    for admin in admins:
-        if admin.email in emails:
-            pass
+def user_count():
+    users = User.objects.all()
+    login_last_day = []
+    now = timezone.now()
+    for user in users:
+        if user.last_login is not None:
+            if abs(now - user.last_login) < datetime.timedelta(days=1):
+                login_last_day.append(user)
         else:
-            emails.append(admin.email)
-    return emails
+            pass
+    return len(login_last_day)
+        
