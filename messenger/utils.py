@@ -2,7 +2,7 @@ from users.models import User
 import datetime
 from django.utils import timezone
 
-
+#get
 def user_count():
     users = User.objects.all()
     login_last_day = []

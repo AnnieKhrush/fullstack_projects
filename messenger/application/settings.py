@@ -29,7 +29,6 @@ ALLOWED_HOSTS = []
 AUTH_USER_MODEL = 'users.User'
 
 
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -42,23 +41,28 @@ INSTALLED_APPS = [
     'chats',
     'users',
     'rest_framework',
-    'social_django',
+#    'social_django',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
-    # 'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-LOGIN_REQUIRED_IGNORE_PATHS = [
-    r'/social-auth/login/google-oauth2/$',
-    r'/social-auth/complete/google-oauth2/$'
-]
+#LOGIN_REQUIRED_IGNORE_PATHS = [
+#    r'/social-auth/login/google-oauth2/$',
+#    r'/social-auth/complete/google-oauth2/$'
+#]
+
+CORS_ALLOWED_ORIGINS = ['http://localhost:8000']
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'application.urls'
 
@@ -73,7 +77,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'social_django.context_processors.backends',
+                #'social_django.context_processors.backends',
             ],
         },
     },
@@ -114,15 +118,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTHENTICATION_BACKENDS = [
-    'social_core.backends.google.GoogleOAuth2',
-    'django.contrib.auth.backends.ModelBackend',
-]
+#AUTHENTICATION_BACKENDS = [
+#    'social_core.backends.google.GoogleOAuth2',
+#    'django.contrib.auth.backends.ModelBackend',
+#]
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home_page'
-LOGOUT_URL = 'logout'
-LOGOUT_REDIRECT_URL = 'login'
+#LOGIN_URL = 'login'
+#LOGIN_REDIRECT_URL = 'home_page'
+#LOGOUT_URL = 'logout'
+#LOGOUT_REDIRECT_URL = 'login'
 
 
 

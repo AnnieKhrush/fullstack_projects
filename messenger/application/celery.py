@@ -11,7 +11,7 @@ app.conf.result_backend = 'redis://localhost:6379/0'
 app.conf.beat_schedule = {
     'receive-every-10-minutes': {
     'task': 'users.tasks.user_login_count',
-    'schedule': 600.0,
+    'schedule': 6.0,
     'args': ()
     },
 }

@@ -21,9 +21,6 @@ class UserAdd(UpdateAPIView):
     lookup_field = 'id'
     
 
-    def perform_update(self, serializer):
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
 
 class UserDelete(UpdateAPIView):
@@ -33,9 +30,6 @@ class UserDelete(UpdateAPIView):
     lookup_field = 'id'
 
     
-    def perform_update(self, serializer):
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
 
 
 '''

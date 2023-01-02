@@ -2,6 +2,41 @@ from rest_framework import serializers
 from chats.models import Chat, Message
 from users.models import User
 
+class MessageCreateSerializer(serializers.ModelSerializer):
+
+    message_in_chat = serializers.PrimaryKeyRelatedField(queryset=Chat.objects.all())
+
+
+    class Meta:
+        model = Message
+        fields = ('message', 'message_in_chat', 'owner')
+    
+
+    def create(self, validated_data):
+        instance = Message.objects.create(**validated_data)
+        return instance
+
+
+class MessageChangeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ('message', 'checked', 'owner', 'message_created_at')
+
+    def update(self, instance, validated_data):
+        instance.message = validated_data.get('message', instance.message)
+        instance.checked = validated_data.get('checked', instance.checked)
+        instance.save()
+        return instance
+    
+ 
+class MessageListSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Message
+        fields = ('id', 'message', 'message_created_at', 'checked', 'owner')
+
+
 class ChatCreateSerializer(serializers.ModelSerializer):
 
     chat_users = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
@@ -50,49 +85,17 @@ class ChatChangeSerializer(serializers.ModelSerializer):
             instance.chat_title = validated_data.get('chat_title', instance.chat_title)
             instance.chat_description = validated_data.get('chat_description', instance.chat_description)
             instance.save()
+            instance.last_message = Message.objects.filter(message_in_chat=instance).latest('message_created_at')
         else:
             raise serializers.ValidationError('Пользователь не является админом чата, поэтому не может редактировать этот чат!')
         return instance
 
 
 class ChatListSerializer(serializers.ModelSerializer):
+    last_message = MessageListSerializer(source='get_message')
+
 
     class Meta:
         model = Chat
-        fields = ('chat_title', 'chat_description')
+        fields = ('id', 'chat_title', 'chat_description', 'chat_messages', 'last_message')
 
-
-class MessageCreateSerializer(serializers.ModelSerializer):
-
-    message_in_chat = serializers.PrimaryKeyRelatedField(queryset=Chat.objects.all())
-
-
-    class Meta:
-        model = Message
-        fields = ('message', 'message_in_chat')
-    
-
-    def create(self, validated_data):
-        instance = Message.objects.create(**validated_data)
-        return instance
-
-
-class MessageChangeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Message
-        fields = ('message', 'checked')
-
-    def update(self, instance, validated_data):
-        instance.message = validated_data.get('message', instance.message)
-        instance.checked = validated_data.get('checked', instance.checked)
-        instance.save()
-        return instance
-    
-
-    
-class MessageListSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Message
-        fields = ('message', 'message_created_at', 'checked')
