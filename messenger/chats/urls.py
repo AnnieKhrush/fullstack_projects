@@ -4,11 +4,11 @@ from chats.views import ChatChange, ChatCreate, MessageChange, MessageCreate, Ch
 from application.decorator import login_needed
 
 urlpatterns = [
-    path('create/', (ChatCreate.as_view()), name='create_chat'),
-    path('<int:id>/', (ChatChange.as_view()), name='chat_info'),
-    path('list/<int:user_id>/', (ChatList.as_view()), name='chat_list'),
-    path('message/create/', (MessageCreate.as_view()), name='message_create'),
-    path('message/<int:id>/', (MessageChange.as_view()), name='message_info'), 
-    path('message/list/<int:chat_id>/', (MessageList.as_view()), name='message_list'),
+    path('create/', login_needed(ChatCreate.as_view()), name='create_chat'),
+    path('<int:id>/', login_needed(ChatChange.as_view()), name='chat_info'),
+    path('list/<int:user_id>/', login_needed(ChatList.as_view()), name='chat_list'),
+    path('message/create/', login_needed(MessageCreate.as_view()), name='message_create'),
+    path('message/<int:id>/', login_needed(MessageChange.as_view()), name='message_info'), 
+    path('message/list/<int:chat_id>/', login_needed(MessageList.as_view()), name='message_list'),
     # path('index/', index, name='index'),
 ]
