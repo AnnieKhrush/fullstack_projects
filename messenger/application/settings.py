@@ -56,13 +56,17 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-LOGIN_REQUIRED_IGNORE_PATHS = [
-    r'/social-auth/login/google-oauth2/$',   
-    r'/social-auth/complete/google-oauth2/$'
-]
+#LOGIN_REQUIRED_IGNORE_PATHS = [
+#    r'/social-auth/login/google-oauth2/$',   
+#    r'/social-auth/complete/google-oauth2/$'
+#]
 
-CORS_ALLOWED_ORIGINS = ['http://localhost:8000']
+CORS_ALLOWED_ORIGINS = ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://127.0.0.1:8000', 'http://localhost:8000']
+CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_HEADERS = ['X-CSRFToken']
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CSRF_TRUSTED_ORIGINS =['http://localhost:3000', 'http://127.0.0.1:3000', 'http://127.0.0.1:8000', 'http://localhost:8000']
 
 ROOT_URLCONF = 'application.urls'
 
@@ -125,7 +129,7 @@ AUTHENTICATION_BACKENDS = [
 
 LOGIN_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/login'
 LOGIN_REDIRECT_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/'
-LOGOUT_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/'
+LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/login'
 
 
