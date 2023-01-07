@@ -3,7 +3,8 @@ from django.views.decorators.http import require_http_methods
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, get_list_or_404
 from rest_framework.generics import CreateAPIView, ListCreateAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView, UpdateAPIView
-# from rest_framework import viewsets
+from rest_framework import viewsets
+from rest_framework.response import Response
 # from rest_framework.filters import BaseFilterBackend
 # import json
 from chats.models import Chat, Message
@@ -49,16 +50,15 @@ class ChatChange(RetrieveUpdateDestroyAPIView):
         serializer.save()
 
 
-class ChatList(ListAPIView):
+class ChatList(viewsets.ViewSet):
 
-    serializer_class = ChatListSerializer
-    queryset = Chat.objects.all()
-    lookup_field = 'id'
+    def list(self, request):
+        user_id = request.user.id
+        print(user_id)
+        chats = Chat.objects.filter(chat_users=request.user)
+        print(chats)
+        return Response({'chats': ChatListSerializer(chats, many=True).data})
 
-    def get_queryset(self):
-        user_id = self.kwargs['user_id']
-        user = get_object_or_404(User, id=user_id)
-        return user.user_chats
 
 
 class MessageCreate(CreateAPIView):

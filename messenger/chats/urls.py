@@ -6,7 +6,7 @@ from application.decorator import login_needed
 urlpatterns = [
     path('create/', login_needed(ChatCreate.as_view()), name='create_chat'),
     path('<int:id>/', login_needed(ChatChange.as_view()), name='chat_info'),
-    path('list/<int:user_id>/', login_needed(ChatList.as_view()), name='chat_list'),
+    path('list/', login_needed(ChatList.as_view({'get': 'list',})), name='chat_list'),
     path('message/create/', login_needed(MessageCreate.as_view()), name='message_create'),
     path('message/<int:id>/', login_needed(MessageChange.as_view()), name='message_info'), 
     path('message/list/<int:chat_id>/', login_needed(MessageList.as_view()), name='message_list'),

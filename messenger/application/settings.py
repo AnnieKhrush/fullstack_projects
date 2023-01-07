@@ -128,7 +128,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/login'
-LOGIN_REDIRECT_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/'
+LOGIN_REDIRECT_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/home_page'
 LOGOUT_URL = 'logout'
 LOGOUT_REDIRECT_URL = 'http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/login'
 

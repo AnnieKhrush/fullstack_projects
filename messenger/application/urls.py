@@ -24,8 +24,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('chats/', include('chats.urls')),
     path('users/', include('users.urls')),
-    path('', views.home_page, name='home_page'),
-    path('login/', views.login, name='login'),
+    path('http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/home_page', views.home_page, name='home_page'),
+    path('http://localhost:3000/2022-2-VK-EDU-FS-Frontend-A-Khrushkova#/login', views.login, name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('social-auth/', include('social_django.urls', namespace='social')),
 ]

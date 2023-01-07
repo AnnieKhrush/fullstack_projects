@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from chats.models import Chat, Message
 from users.models import User
+from django.shortcuts import get_object_or_404
 
 class MessageCreateSerializer(serializers.ModelSerializer):
 
